@@ -34,9 +34,10 @@ export default function ConfigPanel({ colorMode, setColorMode, selectedColorId, 
     
     fetch("https://onmyocalendar-be-api.onrender.com/calendar/create-boss-schedule", {
       method: "POST",
-      credentials :"include",
       headers:{
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
+        "X-Refresh-Token": localStorage.getItem("refresh_token") || "",
       },
       body: JSON.stringify({
         "start_date": getTodayString(),
@@ -46,21 +47,17 @@ export default function ConfigPanel({ colorMode, setColorMode, selectedColorId, 
     })
     .then(res => {
       // BẮT RIÊNG LỖI 401 TỪ BACKEND
-      if (res.status === 401) {
-        throw new Error("401"); 
-      }
-      if (!res.ok) {
-        throw new Error("Lỗi hệ thống");
-      }
+      if (res.status === 401) throw new Error("401"); 
+      if (!res.ok) throw new Error("Lỗi hệ thống");
     })
     .then(() => {
       alert("Đã tạo lịch thành công!");
     })
     .catch(async(error) => {
       console.error("Lỗi:", error);
-      // NẾU LÀ LỖI 401 -> Xóa cờ, cập nhật State
       if (error.message === "401" && !retried) {
         localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('access_token'); 
         setIsLoggedIn(false);
         await handleLogin();
         await handleCreateSchedule(true);
@@ -92,20 +89,16 @@ export default function ConfigPanel({ colorMode, setColorMode, selectedColorId, 
       const handleMessage = (event) => {
         
         if (event.origin !== "https://onmyocalendar-be-api.onrender.com") return;
-
-        
-        if (event.data === "login_success") {
+        if (event.data && event.data.access_token) {
           setIsLoggedIn(true);
           localStorage.setItem("isLoggedIn", "true");
-          
+          localStorage.setItem("access_token", event.data.access_token);
+          localStorage.setItem("refresh_token", event.data.refresh_token || "");
           
           window.removeEventListener("message", handleMessage);
-          
-          
           resolve(true);
         }
       };
-
 
       window.addEventListener("message", handleMessage);
     });
