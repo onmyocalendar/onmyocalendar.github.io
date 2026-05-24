@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Nhận mảng 7 mã màu hex (previewColors) từ Component cha
 function CalendarPreview({ previewColors }) {
   const daysOfWeek = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN'];
   const timeSlots = ['07:00..', '..10:00', '...', '18:00..', '..21:00'];
@@ -10,8 +9,7 @@ function CalendarPreview({ previewColors }) {
       <h2 className="text-sm italic font-bold text-gray-500 mb-6 text-center">
         Lịch của bạn sẽ trông như thế này:
       </h2>
-      
-      {/* Container của lưới thu nhỏ lại một chút để hiển thị đẹp hơn ở giữa */}
+
       <div className="grid grid-cols-8 gap-2 w-full max-w-3xl">
         
         {/* HÀNG TIÊU ĐỀ (Thứ) */}

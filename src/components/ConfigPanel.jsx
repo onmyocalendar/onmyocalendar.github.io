@@ -1,20 +1,18 @@
 import React, { useState, useEffect} from 'react';
-import { GOOGLE_COLORS } from '../App'; // Import mảng màu từ file App (nhớ sửa đường dẫn cho đúng dự án của bạn)
+import { GOOGLE_COLORS } from '../App'; 
 
 // Nhận các props từ Component Cha
 export default function ConfigPanel({ colorMode, setColorMode, selectedColorId, setSelectedColorId, onRandomize, colorList}) {
   const [duration, setDuration] = useState('1');
   const [showColorPicker, setShowColorPicker] = useState(false); 
-  // THÊM STATE MỚI NÀY: Quản lý trạng thái mở/đóng của dropdown tự chế
+
   const [isDurationOpen, setIsDurationOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(
     localStorage.getItem('isLoggedIn') === 'true'
   );
 
-  // State quản lý trạng thái đang tải
   const [isLoading, setIsLoading] = useState(false);
 
-  // Mảng dữ liệu thời gian
   const durationOptions = [
     { value: '1', label: '1 tháng' },
     { value: '3', label: '3 tháng' },
@@ -25,8 +23,6 @@ export default function ConfigPanel({ colorMode, setColorMode, selectedColorId, 
   const getTodayString = () => {
     const today = new Date();
     const year = today.getFullYear();
-    // getMonth() đếm từ 0 (Tháng 1 là 0), nên phải + 1. 
-    // padStart(2, '0') để đảm bảo tháng 5 thành "05"
     const month = String(today.getMonth() + 1).padStart(2, '0'); 
     const day = String(today.getDate()).padStart(2, '0');
     
@@ -62,7 +58,7 @@ export default function ConfigPanel({ colorMode, setColorMode, selectedColorId, 
     })
     .catch(async(error) => {
       console.error("Lỗi:", error);
-      // NẾU LÀ LỖI 401 -> Xóa cờ, cập nhật State, và có thể cho bay sang Google luôn
+      // NẾU LÀ LỖI 401 -> Xóa cờ, cập nhật State
       if (error.message === "401" && !retried) {
         localStorage.removeItem('isLoggedIn');
         setIsLoggedIn(false);
@@ -79,38 +75,38 @@ export default function ConfigPanel({ colorMode, setColorMode, selectedColorId, 
 
   async function handleLogin(){
     return new Promise((resolve) => {
-      // 1. Tính toán kích thước để popup nằm chính giữa màn hình
+      
       const width = 500;
       const height = 650;
       const left = window.screen.width / 2 - width / 2;
       const top = window.screen.height / 2 - height / 2;
 
-      // 2. Mở popup cửa sổ mới
+     
       const popup = window.open(
         "https://onmyocalendar-be-api.onrender.com/auth/login",
         "Google Đăng Nhập",
         `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,status=no`
       );
 
-      // 3. Tạo một hàm để lắng nghe khi cửa sổ con báo tin về
+      
       const handleMessage = (event) => {
-        // Bảo mật: Chỉ nhận tin nhắn từ đúng domain Backend của mình
+        
         if (event.origin !== "https://onmyocalendar-be-api.onrender.com") return;
 
-        // Nếu đúng là mật thư báo login thành công
+        
         if (event.data === "login_success") {
           setIsLoggedIn(true);
           localStorage.setItem("isLoggedIn", "true");
           
-          // Gỡ bỏ ăng-ten lắng nghe sau khi đã xong việc
+          
           window.removeEventListener("message", handleMessage);
           
-          // Kích hoạt giải phóng Promise để hàm onClick chạy tiếp
+          
           resolve(true);
         }
       };
 
-      // Bật ăng-ten lắng nghe sự kiện "message"
+
       window.addEventListener("message", handleMessage);
     });
   }
@@ -152,7 +148,6 @@ export default function ConfigPanel({ colorMode, setColorMode, selectedColorId, 
               </svg>
             </button>
 
-            {/* Menu Dropdown Tự Chế - ĐƯỢC BO TRÒN VÀ CHỈNH STYLE THOẢI MÁI */}
             {isDurationOpen && (
               <div className="absolute top-[105%] left-0 w-full bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden z-20">
                 {durationOptions.map((opt) => (
@@ -160,7 +155,7 @@ export default function ConfigPanel({ colorMode, setColorMode, selectedColorId, 
                     key={opt.value}
                     onMouseDown = {() => {
                       setDuration(opt.value);
-                      setIsDurationOpen(false); // Chọn xong tự đóng menu
+                      setIsDurationOpen(false);
                     }}
                     className={`py-2.5 px-4 cursor-pointer hover:bg-blue-50 transition-colors 
                       ${duration === opt.value ? 'bg-blue-100/50 text-blue-700 font-semibold' : 'text-slate-700'}`
@@ -196,7 +191,7 @@ export default function ConfigPanel({ colorMode, setColorMode, selectedColorId, 
           <button 
             type="button"
             onClick={() => {
-              onRandomize(); // Gọi hàm random từ Component Cha truyền xuống
+              onRandomize(); 
               setShowColorPicker(false); 
             }}
             className={`flex-1 flex items-center justify-center gap-2 bg-white border text-sm
@@ -217,7 +212,7 @@ export default function ConfigPanel({ colorMode, setColorMode, selectedColorId, 
                 <button
                   key={color.id}
                   onClick={() => {
-                    setSelectedColorId(color.id); // Cập nhật màu lên cha
+                    setSelectedColorId(color.id); 
                     setShowColorPicker(false);
                   }}
                   title={color.name}
@@ -240,22 +235,20 @@ export default function ConfigPanel({ colorMode, setColorMode, selectedColorId, 
               }`}
             onClick={async() => {
               if (!isLoggedIn) {
-                // Mở popup và đợi cho đến khi user đăng nhập xong ở cửa sổ kia
+                
                 const success = await handleLogin(); 
 
                 if (success) {
-                  // Vì trang web KHÔNG hề bị reload, các biến duration, colorList 
-                  // người dùng đã chọn trước đó vẫn giữ nguyên vẹn 100%!
-                  setIsLoading(true); // Bật loading xoay vòng
+                  
+                  setIsLoading(true); 
                   await handleCreateSchedule(); 
                 }
               } else {
                 await handleCreateSchedule();
               }
               }}
-            disabled={isLoading} // Khóa nút không cho bấm nhiều lần
+            disabled={isLoading} 
           >
-            {/* Nếu đang loading thì hiện icon SVG xoay và chữ Đang xử lý */}
             {isLoading ? (
               <>
                 <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -265,7 +258,6 @@ export default function ConfigPanel({ colorMode, setColorMode, selectedColorId, 
                 Đang tạo lịch...
               </>
             ) : (
-              /* Nếu không loading thì hiện chữ bình thường */
               "Tạo lịch"
             )}
           </button>
