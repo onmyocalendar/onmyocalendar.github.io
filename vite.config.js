@@ -13,6 +13,6 @@ export default defineConfig({
             },
         },
     },
-    base: 'onmyocalendar-fe',
+    base: '/',
 
 })
