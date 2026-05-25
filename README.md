@@ -1,16 +1,28 @@
-# React + Vite
+# OnmyoCalendar 📅
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A robust Full-Stack web application designed to automatically calculate in-game boss event cycles and seamlessly synchronize them directly into the user's Google Calendar. No more waiting around to check daily buffs!
+You can try out the app here:
+https://onmyocalendar.github.io/
 
-Currently, two official plugins are available:
+## 🚀 Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Frontend:** ReactJS, Vite, Tailwind CSS
+- **Backend:** Python, FastAPI, Google Calendar API, Google OAuth 2.0
+- **Deployment:** GitHub Pages (Frontend), Render (Backend)
 
-## React Compiler
+## ✨ Key Features & Technical Highlights
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 🔒 Secure Cross-Origin Authentication (OAuth 2.0)
+- Implemented a secure Google OAuth 2.0 login flow across independent domains (cross-origin).
+- Successfully bypassed browser third-party cookie restrictions by adopting a Token-based Authentication architecture utilizing `window.postMessage`, `localStorage`, and `Authorization` headers.
 
-## Expanding the ESLint configuration
+### ⚡ Optimized Performance & Batch Requests
+- **Google API Batching:** Designed a data chunking algorithm leveraging Google API Batch Requests (50 requests/batch) to handle massive datasets, successfully generating up to 720 events (a full 1-year schedule) simultaneously while avoiding rate limits.
+- **Asynchronous Processing:** Mitigated cloud environment timeout (504) errors on Render by offloading heavy scheduling tasks to background processes using FastAPI `BackgroundTasks`, drastically reducing API response times to under 0.1 seconds.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 🎨 Enhanced User Experience (UX/UI)
+- Built a modern, responsive user interface using Tailwind CSS.
+- Integrated dynamic calendar color selection mapped directly to official Google Calendar color IDs.
+- Engineered intuitive loading states with a managed artificial delay combined with backend background processing to provide a seamless, reliable user experience during intensive asynchronous operations.
+- Implemented a resilient frontend error-handling mechanism that intercepts `401 Unauthorized` responses to automatically trigger the re-authentication flow.
+
